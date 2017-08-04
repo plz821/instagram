@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVOSCloud
 
 class SignUpViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet weak var imgAvatar: UIImageView!
@@ -49,10 +50,10 @@ class SignUpViewController: UIViewController, UIImagePickerControllerDelegate, U
         }
         
         // 将数据提交到LeadCloud
-        let User = AVUser()
+        let user = AVUser()
         user.username = txtUserName.text?.lowercased()
         user.email = txtEmail.text?.lowercased()
-        user.password = txtPassword.text
+        user.password = txtUserPwd.text
         
         user["fullname"] = txtFullName.text?.lowercased()
         user["brief"] = txtBrief.text
@@ -61,15 +62,22 @@ class SignUpViewController: UIViewController, UIImagePickerControllerDelegate, U
         
         // 转换头像数据并发送到服务器
         let avatarData = UIImageJPEGRepresentation(imgAvatar.image!, 0.5) //将image转换为jpeg格式，0.5是JPEG图像的压缩质量，范围是0.0~1.0（最低~最高）
-        let avatarFile = AVFile(name: "avatar.jpg", data: avatarData)
+        let avatarFile = AVFile(name: "avatar.jpg", data: avatarData!)
         user["avatar"] = avatarFile
         
         // 后台将个人数据提交到LeadCloud（非主线程的其他线程）
         user.signUpInBackground {(success: Bool, error: Error? ) in
             if success {
                 print("用户注册成功！")
+                // 记住登录的用户
+                UserDefaults.standard.set(user.username, forKey: "username")
+                // 将用户名写入到本地磁盘
+                UserDefaults.standard.synchronize()
+                // 从AppDelegate类中调用login方法
+                let appDelegate : AppDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.login()
             } else {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription ?? "用户注册失败。")
             }
         }
     }

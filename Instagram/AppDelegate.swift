@@ -29,6 +29,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         testObject.save()
         */
         
+        // 调用登录方法
+        login()
+        
         return true
     }
 
@@ -54,6 +57,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
-
+    
+    
+    func login() {
+        // 获取UserDefaults中存储的Key为username的值
+        let username: String? = UserDefaults.standard.string(forKey: "username")
+        
+        // 如果之前成功登录过
+        if username != nil {
+            let storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            let myTabBar = storyboard.instantiateViewController(withIdentifier: "TabBar") as! UITabBarController
+            window?.rootViewController = myTabBar
+        }
+    }
 }
 
